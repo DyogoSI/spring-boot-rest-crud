@@ -28,7 +28,7 @@ Esta é uma API REST completa para o gerenciamento de vendas de telemóveis/celu
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/DyogoSI/mobile-store-rest-api.git](https://github.com/DyogoSI/mobile-store-rest-api.git)
+    git clone [https://github.com/DyogoSI/spring-boot-rest-crud.git](https://github.com/DyogoSI/spring-boot-rest-crud.git)
     ```
 2.  **Abra no IntelliJ IDEA:**
     - Importe o projeto como um projeto Maven.
