@@ -1,5 +1,5 @@
 ## INTERFACE 
-<img width="1852" height="969" alt="image" src="https://github.com/user-attachments/assets/8c391ddc-8909-4d4a-8a60-a06a602dd576" />
+<img width="1852" height="969" alt="image" src="https://github.com/user-attachments/assets/29078707-18e3-4f0f-9882-7b7be0cc0221" />
 
 
 
