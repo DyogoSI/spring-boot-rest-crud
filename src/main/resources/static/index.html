@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Loja de Celulares Pro</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; color: white; }
+        .btn-salvar { background: #28a745; }
+        .btn-editar { background: #ffc107; color: black; margin-right: 5px; }
+        .btn-excluir { background: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Gerenciador de vendas</h2>
+
+    <input type="hidden" id="celularId">
+    <input type="text" id="marca" placeholder="Marca (ex: Samsung)">
+    <input type="text" id="modelo" placeholder="Modelo (ex: S24)">
+    <input type="number" id="preco" placeholder="Preço (ex: 4500)">
+    <button onclick="salvarCelular()" class="btn-salvar">Salvar Celular</button>
+
+    <table id="tabela">
+        <thead>
+        <tr>
+            <th>ID</th> <th>Marca</th> <th>Modelo</th> <th>Preço</th> <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    const API_URL = '/celulares';
+
+    async function carregar() {
+        const res = await fetch(API_URL);
+        const dados = await res.json();
+        const corpo = document.querySelector('#tabela tbody');
+        corpo.innerHTML = dados.map(c => `
+            <tr>
+                <td>${c.id}</td>
+                <td>${c.marca}</td>
+                <td>${c.modelo}</td>
+                <td>R$ ${c.preco.toFixed(2)}</td>
+                <td>
+                    <button class="btn-editar" onclick="preencherCampos(${c.id}, '${c.marca}', '${c.modelo}', ${c.preco})">Editar</button>
+                    <button class="btn-excluir" onclick="excluir(${c.id})">Excluir</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function salvarCelular() {
+        const id = document.getElementById('celularId').value; // Pega o ID escondido
+        const marcaInput = document.getElementById('marca').value;
+        const modeloInput = document.getElementById('modelo').value;
+        const precoInput = document.getElementById('preco').value;
+
+        const dados = {
+            marca: marcaInput,
+            modelo: modeloInput,
+            preco: parseFloat(precoInput)
+        };
+
+
+        const metodo = id ? 'PUT' : 'POST';
+        const url = id ? `/celulares/${id}` : '/celulares';
+
+        await fetch(url, {
+            method: metodo,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        limparFormulario();
+        carregar();
+    }
+
+    async function excluir(id) {
+        if(confirm("Deseja mesmo excluir?")) {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            carregar();
+        }
+    }
+
+    function preencherCampos(id, marca, modelo, preco) {
+        document.getElementById('celularId').value = id;
+        document.getElementById('marca').value = marca;
+        document.getElementById('modelo').value = modelo;
+        document.getElementById('preco').value = preco;
+    }
+
+    function limparFormulario() {
+        document.getElementById('celularId').value = '';
+        document.getElementById('marca').value = '';
+        document.getElementById('modelo').value = '';
+        document.getElementById('preco').value = '';
+    }
+
+    carregar();
+</script>
+</body>
+</html>
