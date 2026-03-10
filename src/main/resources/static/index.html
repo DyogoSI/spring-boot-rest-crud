@@ -3,231 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Store Pro - Gerenciador</title>
+    <title>Mobile Store Pro - Gestão de Stock</title>
     <style>
-        /* Configurações Globais e Layout */
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            flex: 1;
-            max-width: 900px;
-            margin: 40px auto;
-            width: 90%;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        h2 { color: #1a73e8; margin-top: 0; }
-
-        /* Formulário */
-        .form-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        input {
-            flex: 1;
-            min-width: 150px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        input:focus { border-color: #1a73e8; }
+        /* Estilos base */
+        html, body { height: 100%; margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; }
+        .container { flex: 1; max-width: 1000px; margin: 40px auto; width: 95%; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; }
+        .form-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        input { flex: 1; min-width: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
 
         /* Botões */
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
         .btn-salvar { background: #28a745; color: white; }
-        .btn-salvar:hover { background: #218838; }
-
-        .btn-atualizar { background: #1a73e8; color: white; } /* Cor diferente para edição */
-
-        .btn-editar { background: #ffc107; color: #212529; margin-right: 5px; }
-        .btn-editar:hover { background: #e0a800; }
-
         .btn-excluir { background: #dc3545; color: white; }
-        .btn-excluir:hover { background: #c82333; }
+        .btn-editar { background: #ffc107; }
 
-        /* Tabela */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+        /* TABELA E ALERTAS */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #1a73e8; color: white; }
 
-        th, td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            text-align: left;
-        }
-
-        th { background: #1a73e8; color: white; text-transform: uppercase; font-size: 14px; }
-        tr:hover { background: #fdfdfd; }
-
-        /* Footer */
-        footer {
-            background: #202124;
-            color: #bdc1c6;
-            text-align: center;
-            padding: 25px 0;
-            margin-top: auto;
-        }
-
-        footer a { color: #8ab4f8; text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
+        /* Classe de Alerta Visual (Fundo vermelho claro) */
+        .estoque-baixo { background-color: #ffe5e5 !important; color: #b71c1c; font-weight: bold; }
+        .badge-alerta { background: #dc3545; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .badge-ok { background: #28a745; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Gerenciador de Vendas</h2>
+    <h2>📱 Gestão de Inventário e Reposição </h2>
 
     <div class="form-group">
         <input type="hidden" id="celularId">
-        <input type="text" id="marca" placeholder="Marca (ex: Apple)">
-        <input type="text" id="modelo" placeholder="Modelo (ex: iPhone 15)">
-        <input type="number" id="preco" placeholder="Preço (R$)">
-        <button id="btnPrincipal" onclick="salvarCelular()" class="btn-salvar">Salvar Celular</button>
-        <button id="btnCancelar" onclick="limparFormulario()" style="display:none; background:#6c757d; color:white;">Cancelar</button>
+        <input type="text" id="marca" placeholder="Marca (ex: Samsung)">
+        <input type="text" id="modelo" placeholder="Modelo (ex: S23)">
+        <input type="number" id="preco" placeholder="Preço R$">
+        <input type="number" id="quantidadeEstoque" placeholder="Qtd em Estoque">
+        <input type="number" id="estoqueMinimo" placeholder="Aviso Mínimo">
+        <button onclick="salvarCelular()" class="btn-salvar">Salvar no Inventário</button>
     </div>
 
     <table>
         <thead>
         <tr>
-            <th>ID</th>
             <th>Marca</th>
             <th>Modelo</th>
             <th>Preço</th>
-            <th style="width: 180px;">Ações</th>
+            <th>Estoque</th>
+            <th>Mínimo</th>
+            <th>Status</th>
+            <th>Ações</th>
         </tr>
         </thead>
-        <tbody id="corpoTabela">
-        </tbody>
+        <tbody id="corpoTabela"></tbody>
     </table>
 </div>
 
-<footer>
-    <p>&copy; 2026 Mobile Store API - Desenvolvido por
-        <a href="https://github.com/DyogoSI" target="_blank">DyogoSI</a>
-    </p>
-    <p style="font-size: 13px;">Stack: Spring Boot, Java, JavaScript & JPA</p>
-</footer>
-
 <script>
     const API_URL = '/celulares';
-    const btnPrincipal = document.getElementById('btnPrincipal');
-    const btnCancelar = document.getElementById('btnCancelar');
 
-    // Busca dados da API e preenche a tabela
-    async function carregar() {
+    async function carregarCelulares() {
         try {
             const res = await fetch(API_URL);
-            const dados = await res.json();
+            const celulares = await res.json();
             const corpo = document.getElementById('corpoTabela');
+            corpo.innerHTML = '';
 
-            corpo.innerHTML = dados.map(c => `
-                <tr>
-                    <td>#${c.id}</td>
-                    <td><strong>${c.marca}</strong></td>
-                    <td>${c.modelo}</td>
-                    <td>R$ ${c.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td>
-                        <button class="btn-editar" onclick="preencherCampos(${c.id}, '${c.marca}', '${c.modelo}', ${c.preco})">Editar</button>
-                        <button class="btn-excluir" onclick="excluir(${c.id})">Excluir</button>
-                    </td>
-                </tr>
-            `).join('');
-        } catch (err) {
-            console.error("Erro ao carregar dados:", err);
+            celulares.forEach(c => {
+                // TRATAMENTO PARA NÃO APARECER NULL (Se for null, vira 0)
+                const qtd = c.quantidadeEstoque !== null ? c.quantidadeEstoque : 0;
+                const min = c.estoqueMinimo !== null ? c.estoqueMinimo : 0;
+                const preco = c.preco !== null ? c.preco : 0;
+
+                // Lógica de Alerta: se quantidade for menor que o mínimo
+                const estoqueBaixo = qtd < min;
+                const classeLinha = estoqueBaixo ? 'estoque-baixo' : '';
+                const statusDestaque = estoqueBaixo ? '<span class="badge-alerta">REPOR</span>' : '<span class="badge-ok">OK</span>';
+
+                corpo.innerHTML += `
+                    <tr class="${classeLinha}">
+                        <td>${c.marca || '-'}</td>
+                        <td>${c.modelo || '-'}</td>
+                        <td>R$ ${preco.toFixed(2)}</td>
+                        <td>${qtd}</td>
+                        <td>${min}</td>
+                        <td>${statusDestaque}</td>
+                        <td>
+                            <button class="btn-editar" onclick="prepararEdicao(${c.id}, '${c.marca}', '${c.modelo}', ${preco}, ${qtd}, ${min})">📝</button>
+                            <button class="btn-excluir" onclick="deletarCelular(${c.id})">🗑️</button>
+                        </td>
+                    </tr>`;
+            });
+        } catch (error) {
+            console.error("Erro ao carregar dados:", error);
         }
     }
 
-    // Salva ou Atualiza um celular
     async function salvarCelular() {
         const id = document.getElementById('celularId').value;
+
+        // Captura os dados garantindo que são números
         const dados = {
             marca: document.getElementById('marca').value,
             modelo: document.getElementById('modelo').value,
-            preco: parseFloat(document.getElementById('preco').value)
+            preco: parseFloat(document.getElementById('preco').value) || 0,
+            quantidadeEstoque: parseInt(document.getElementById('quantidadeEstoque').value) || 0,
+            estoqueMinimo: parseInt(document.getElementById('estoqueMinimo').value) || 0
         };
-
-        if (!dados.marca || !dados.modelo || isNaN(dados.preco)) {
-            alert("Preencha todos os campos corretamente!");
-            return;
-        }
 
         const metodo = id ? 'PUT' : 'POST';
         const url = id ? `${API_URL}/${id}` : API_URL;
 
-        await fetch(url, {
-            method: metodo,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
+        try {
+            const response = await fetch(url, {
+                method: metodo,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            });
 
-        limparFormulario();
-        carregar();
-    }
-
-    // Exclui um celular
-    async function excluir(id) {
-        if (confirm("Tem certeza que deseja excluir este registro?")) {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            carregar();
+            if (response.ok) {
+                limparFormulario();
+                carregarCelulares();
+            } else {
+                alert("Erro ao salvar! Verifique se o Backend está rodando.");
+            }
+        } catch (error) {
+            console.error("Erro na requisição:", error);
         }
     }
 
-    // Prepara o formulário para edição
-    function preencherCampos(id, marca, modelo, preco) {
+    function prepararEdicao(id, marca, modelo, preco, qtd, min) {
         document.getElementById('celularId').value = id;
         document.getElementById('marca').value = marca;
         document.getElementById('modelo').value = modelo;
         document.getElementById('preco').value = preco;
-
-        // Altera o estilo do botão para modo edição
-        btnPrincipal.innerText = "Atualizar Celular";
-        btnPrincipal.className = "btn-atualizar";
-        btnCancelar.style.display = "inline-block";
+        document.getElementById('quantidadeEstoque').value = qtd;
+        document.getElementById('estoqueMinimo').value = min;
+        window.scrollTo(0, 0); // Sobe a página para o formulário
     }
 
-    // Limpa o formulário e volta ao estado inicial
+    async function deletarCelular(id) {
+        if(confirm('Deseja excluir este item do estoque?')) {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            carregarCelulares();
+        }
+    }
+
     function limparFormulario() {
         document.getElementById('celularId').value = '';
         document.getElementById('marca').value = '';
         document.getElementById('modelo').value = '';
         document.getElementById('preco').value = '';
-
-        btnPrincipal.innerText = "Salvar Celular";
-        btnPrincipal.className = "btn-salvar";
-        btnCancelar.style.display = "none";
+        document.getElementById('quantidadeEstoque').value = '';
+        document.getElementById('estoqueMinimo').value = '';
     }
 
-    // Inicialização
-    carregar();
+    // Inicializa a tabela
+    carregarCelulares();
 </script>
-
 </body>
 </html>

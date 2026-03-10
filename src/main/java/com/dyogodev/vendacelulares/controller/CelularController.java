@@ -1,7 +1,7 @@
 package com.dyogodev.vendacelulares.controller;
 
 import com.dyogodev.vendacelulares.model.Celular;
-import com.dyogodev.vendacelulares.repository.CelularRepository;
+import com.dyogodev.vendacelulares.service.CelularService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -11,33 +11,32 @@ import java.util.List;
 public class CelularController {
 
     @Autowired
-    private CelularRepository repository;
+    private CelularService service; // Mudamos de repository para service
 
-    // Listar todos os celulares (GET)
     @GetMapping
     public List<Celular> listar() {
-        return repository.findAll();
+        return service.listarTodos();
     }
 
-    // Adicionar um novo celular/venda (POST)
+    // NOVO ENDPOINT para o TCC: Lista apenas os alertas
+    @GetMapping("/alertas-estoque")
+    public List<Celular> listarAlertas() {
+        return service.verificarItensAbaixoDoMinimo();
+    }
+
     @PostMapping
     public Celular adicionar(@RequestBody Celular celular) {
-        return repository.save(celular);
+        return service.salvar(celular);
     }
 
-    // APAGA O CELULAR
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
-        repository.deleteById(id);
+        service.deletar(id);
     }
 
-    @PutMapping("/{id}") // EDITA O CELULAR
+    @PutMapping("/{id}")
     public Celular editar(@PathVariable Long id, @RequestBody Celular celularAtualizado) {
-        return repository.findById(id).map(celular -> {
-            celular.setModelo(celularAtualizado.getModelo());
-            celular.setMarca(celularAtualizado.getMarca());
-            celular.setPreco(celularAtualizado.getPreco());
-            return repository.save(celular);
-        }).orElse(null);
+        celularAtualizado.setId(id);
+        return service.salvar(celularAtualizado);
     }
 }
